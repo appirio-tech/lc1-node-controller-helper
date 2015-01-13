@@ -19,7 +19,6 @@
     "grunt-env": "^0.4.1",
     "load-grunt-tasks": "^0.4.0",
     "lodash": "^2.4.1",
-    "serenity-datasource": "git+ssh://git@gitlab.com:spanhawk/serenity-datasource.git",
     "serenity-route-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-route-helper.git",
     "serenity-param-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-param-helper.git",
     "serenity-partial-response-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-partial-response-helper.git"
