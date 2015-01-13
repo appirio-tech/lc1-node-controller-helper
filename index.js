@@ -41,6 +41,7 @@ var paramHelper = require('serenity-param-helper');
 var responseHelper = require('serenity-partial-response-helper');
 var auth = require('serenity-auth');
 var partialResponseHelper = null;
+var serenityDatasource = require('serenity-datasource');
 var queryConfig = null;
 
 
@@ -465,7 +466,8 @@ function deleteEntity(model, referenceModels, options, req, res, next) {
 
 function ControllerHelper(config) {
   queryConfig = config.app.query || 50;
-  partialResponseHelper = new responseHelper(config);
+  var datasource = new serenityDatasource(config);
+  partialResponseHelper = new responseHelper(datasource);
 }
 
 /**

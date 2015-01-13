@@ -1,12 +1,12 @@
 {
   "name": "serenity-controller-helper",
-  "description": "Common route helper module for serenity applications",
+  "description": "Common controller helper module for serenity applications",
   "version": "0.0.1",
   "author": "spanhawk",
   "contributors": [],
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/spanhawk/serenity-route-helper.git"
+    "url": "https://gitlab.com/spanhawk/serenity-controller-helper.git"
   },
   "homepage": "https://github.com/riteshsangwan",
   "keywords": [
