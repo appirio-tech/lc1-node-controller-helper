@@ -1,5 +1,5 @@
 {
-  "name": "serenity-partial-response-helper",
+  "name": "serenity-controller-helper",
   "description": "Common route helper module for serenity applications",
   "version": "0.0.1",
   "author": "spanhawk",
