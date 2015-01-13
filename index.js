@@ -20,7 +20,7 @@
  * The configuration should define datasource configuration as specified by serenity-datasource package
  * This module will instantiate an instance of datasource and will use it.
  *
- * An optional 'query' config is provided which indicates default query size. If no configuration is supplied
+ * An optional 'query' config is provided which indicates default query size. If no query configuration is supplied
  * default would be 50
  * Below is a sample configuration object
  *

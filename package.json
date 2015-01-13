@@ -6,9 +6,9 @@
   "contributors": [],
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/spanhawk/serenity-controller-helper.git"
+    "url": "https://github.com/riteshsangwan/serenity-controller-helper.git"
   },
-  "homepage": "https://github.com/riteshsangwan",
+  "homepage": "https://github.com/riteshsangwan/serenity-controller-helper",
   "keywords": [
     "serenity"
   ],
@@ -24,15 +24,11 @@
     "serenity-partial-response-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-partial-response-helper.git"
   },
   "devDependencies": {
-    "grunt-mocha-test": "^0.10.2",
-    "mocha": "1.21.4",
-    "should": "^4.4.4"
   },
   "engines": {
     "node": ">= 0.10.0"
   },
   "files": [
-    "errors/",
     "Readme.md",
     "index.js"
   ],

@@ -16,14 +16,6 @@ module.exports = function(grunt) {
         }
       }
     },
-    mochaTest: {
-      test: {
-        options: {
-          reporter: 'spec'
-        },
-        src: ['test/**/*.js']
-      }
-    },
     env: {
       test: {
         NODE_ENV: 'test'
@@ -36,5 +28,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['jshint', 'validate']);
   //validate task.
-  grunt.registerTask('validate', ['env:test', 'mochaTest', 'jshint']);
+  grunt.registerTask('validate', ['env:test', 'jshint']);
 };
