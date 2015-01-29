@@ -11,16 +11,16 @@ It provides CURD operations on top of sequelize model. Filtering and google part
 Install via npm and git
 
 ```
-npm install git+https://github.com/riteshsangwan/serenity-controller-helper.git
+npm install git+https://github.com/appirio-tech/lc1-node-controller-helper.git
 ```
 
 ## Dependencies
 
-- serenity-datasource (To access the datasource)
-- serenity-route-helper (To process the response)
-- serenity-param-helper (To parse request query filters)
-- serenity-partial-response-helper (To support partial response)
-- serenity-auth (For application authentication)
+- lc1-node-datasource (To access the datasource)
+- lc1-node-route-helper (To process the response)
+- lc1-node-param-helper (To parse request query filters)
+- lc1-node-partial-response-helper (To support partial response)
+- lc1-node-auth (For application authentication)
 
 
 ## Configuration
@@ -61,7 +61,7 @@ This method returns a controller instance. Methods available on controller insta
 ## Example
 
 ```
-var serenityControllerHelper = require('serenity-controller-helper');
+var serenityControllerHelper = require('lc1-node-controller-helper');
 var config = require('config');
 // instantiate serenityControllerHelper
 var controllerHelper = new serenityControllerHelper(config);
