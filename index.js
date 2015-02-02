@@ -43,6 +43,7 @@ var auth = require('serenity-auth');
 var partialResponseHelper = null;
 var serenityDatasource = require('serenity-datasource');
 var queryConfig = null;
+var errors = require('common-errors');
 
 
 /**
@@ -59,22 +60,19 @@ function _findEntityByFilter(model, filters, req, callback) {
   var idValue = Number(idParamValue);
   // check id is valid numer and positive number
   if (_.isNaN(idValue) || idValue < 0) {
-    routeHelper.addErrorMessage(req, 'Invalid id parameter '+idParamValue, 400);
-    callback(req.error);
+    callback(new errors.ValidationError('Invalid id parameter ' + idParamValue));
   } else {
     var refFilters = _.cloneDeep(filters);
     refFilters.where.id = idValue;
     model.find(refFilters).success(function(entity) {
       if (!entity) {
-        routeHelper.addErrorMessage(req, 'Cannot find the '+ model.name + ' with id '+idParamValue, 404);
-        callback(req.error);
+        callback(new errors.NotFoundError(model.name + ' with id ' + idParamValue));
       } else {
         callback(null, filters, entity);
       }
     })
     .error(function(err) {
-      routeHelper.addError(req, err);
-      callback(req.error);
+      callback(new errors.Error('DBReadError: ' + err.message, err));
     });
   }
 }
@@ -88,8 +86,7 @@ function _checkIdParamAndRequestBody(referenceModels, req, callback) {
     var idParamValue = req.swagger.params[idParam].value;
     var idValue = Number(idParamValue);
     if(req.body[idParam] && idValue!==Number(req.body[idParam])) {
-      routeHelper.addValidationError(req, idParam + ' value should be same in path param as well as request body');
-      return callback(req.error);
+      return callback(new errors.ValidationError(idParam + ' value should be same in path param as well as request body'));
     }
   });
   return callback();
@@ -107,25 +104,35 @@ function _buildQueryFilter(model, filtering, filters, req, callback) {
   if (!filters) {
     filters = { where: {} };   // start with emtpty filter
   }
+
+  var err;
   if (filtering) {
     filters.offset = 0;
     filters.limit = queryConfig.pageSize;
     // req.swagger.params returns empty value for non-existing parameters, it can't determine it's non-existing
     // or empty value. So req.query should be used to validate empty value and not-supportd parameters.
     // parse request parameters.
-    _.each(_.keys(req.query), function(key) {
-      if (key === 'offset' || key === 'limit') {
-        paramHelper.parseLimitOffset(req, filters, key, req.query[key], callback);
-      } else if (key === 'orderBy') {
-        paramHelper.parseOrderBy(model, req, filters, req.query[key], callback);
-      } else if (key === 'filter') {
-        paramHelper.parseFilter(model, req, filters, req.query[key], callback);
+    try {
+      _.each(_.keys(req.query), function(key) {
+        if (key === 'offset' || key === 'limit') {
+          paramHelper.parseLimitOffset(req, filters, key, req.query[key], callback);
+        } else if (key === 'orderBy') {
+          paramHelper.parseOrderBy(model, req, filters, req.query[key], callback);
+        } else if (key === 'filter') {
+          paramHelper.parseFilter(model, req, filters, req.query[key], callback);
+        } else {
+          throw new errors.ValidationError('The request parameter ' + key + ' is not supported');
+        }
+      });
+    }  catch (validationError) {
+      if (err) {
+        err.addError(err);
       } else {
-        routeHelper.addValidationError(req, 'The request parameter ' + key + ' is not supported');
+        err = validationError;
       }
-    });
+    }
   }
-  callback(req.error, filters);
+  callback(err, filters);
 }
 
 /**
@@ -139,39 +146,32 @@ function _buildReferenceFilter(referenceModels, req, callback) {
   if (!referenceModels) {
     callback(null, filters);
   } else {
-    async.eachSeries(referenceModels, function(refModel, cb) {
+    async.eachSeries(referenceModels, function (refModel, cb) {
       var idParam = routeHelper.getRefIdField(refModel);
       var idParamValue = req.swagger.params[idParam].value;
       var idValue = Number(idParamValue);
       // check id is valid numer and positive number
       if (_.isNaN(idValue) || idValue < 0) {
-        routeHelper.addErrorMessage(req, 'Invalid id parameter '+idParamValue, 400);
-        cb(req.error);
+        cb(new errors.ValidationError('Invalid id parameter ' + idParamValue));
       } else {
         var refFilters = _.cloneDeep(filters);
         refFilters.where.id = idValue;
         // verify an element exists in the reference model
-        refModel.find(refFilters).success(function(refEntity) {
+        refModel.find(refFilters).success(function (refEntity) {
           if(!refEntity) {
-            routeHelper.addErrorMessage(req, 'Cannot find the '+ refModel.name + ' with id '+idParamValue, 404);
-            cb(req.error);
+            cb(new errors.ValidationError('Cannot find the ' + refModel.name + ' with id '+ idParamValue));
           } else {
             // add the id of reference element to filters
             filters.where[idParam] = refEntity.id;
             cb(null);
           }
-        }).error(function(err) {
-            routeHelper.addError(req, err);
-            cb(req.error);
+        }).error(function (err) {
+            cb(new errors.Error('DBReadError: ' + err.message, err));
         });
       }
-    }, function(err) {
-      if (err) {
-        callback(req.error);
-      } else {
-        // pass the filters to the next function in async
-        callback(null, filters);
-      }
+    }, function (err) {
+      // pass err and filters to the next function in async
+      callback(err, filters);
     });
   }
 }
@@ -183,8 +183,7 @@ function _buildReferenceFilter(referenceModels, req, callback) {
  */
 function _checkExtraParameters(req, callback) {
   if (_.keys(req.query).length > 0) {
-    routeHelper.addErrorMessage(req, 'Query parameter is not allowed', 400);
-    callback(req.error);
+    callback(new errors.ValidationError('Query parameter is not allowed'));
   } else {
     callback(null);
   }
@@ -231,12 +230,13 @@ function getAllEntities(model, referenceModels, options, req, res, next) {
         callback(null, result.count, result.rows);
       })
       .error(function(err) {
-        routeHelper.addError(req, err);
-        callback(req.error);
+        callback(new errors.Error('DBReadError: ' + err.message, err));
       });
     }
   ], function(err, totalCount, entities) {
-    if (!err) {
+    if (err) {
+      return next(err);  // go to error handler
+    } else {
       req.data = {
         success: true,
         status: 200,
@@ -245,10 +245,8 @@ function getAllEntities(model, referenceModels, options, req, res, next) {
         },
         content: entities
       };
-    } else if(err) {
-      return next(err);
+      partialResponseHelper.reduceFieldsAndExpandObject(model, req, next);
     }
-    partialResponseHelper.reduceFieldsAndExpandObject(model, req, next);
   });
 
 }
@@ -278,15 +276,17 @@ function getEntity(model, referenceModels, options, req, res, next) {
       }
       _findEntityByFilter(model, filters, req, callback);
     }
-  ], function(err, filters, entity) {
-    if (!err) {
+  ], function (err, entity) {
+    if (err) {
+      return next(err);  // go to error handler
+    } else {
       req.data = {
         success: true,
         status: 200,
         content: entity
       };
+      partialResponseHelper.reduceFieldsAndExpandObject(model, req, next);
     }
-    partialResponseHelper.reduceFieldsAndExpandObject(model, req, next);
   });
 
 }
@@ -323,12 +323,13 @@ function createEntity(model, referenceModels, options, req, res, next) {
         callback(null, entity);
       })
       .error(function(err) {
-        routeHelper.addError(req, err);
-        callback(req.error);
+        callback(new errors.Error('DBCreateError: ' + err.message, err));
       });
     }
-  ], function(err, entity) {
-    if (!err) {
+  ], function (err, entity) {
+    if (err) {
+      return next(err);   // go to error handler
+    } else {
       req.data = {
         id: entity.id,
         result: {
@@ -389,12 +390,13 @@ function updateEntity(model, referenceModels, options, req, res, next) {
         // next();
       })
       .error(function(err) {
-        routeHelper.addError(req, err);
-        callback(req.error);
+        callback(new errors.Error('DBSaveError: ' + err.message, err));
       });
     }
-  ], function(err, entity) {
-    if (!err) {
+  ], function (err, entity) {
+    if (err) {
+      return next(err);   // go to error handler
+    } else {
       req.data = {
         id: entity.id,
         result: {
@@ -445,12 +447,13 @@ function deleteEntity(model, referenceModels, options, req, res, next) {
         callback(null, entity);
       })
       .error(function(err) {
-        routeHelper.addError(req, err);
-        callback(req.error);
+        callback(new errors.Error('DBDeleteError: ' + err.message, err));
       });
     }
   ], function(err, entity) {
-    if (!err) {
+    if (err) {
+      return next(err);   // go to error handler
+    } else {
       req.data = {
         id: entity.id,
         result: {

@@ -6,9 +6,9 @@
   "contributors": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/riteshsangwan/serenity-controller-helper.git"
+    "url": "https://github.com/appirio-tech/lc1-node-controller-helper.git"
   },
-  "homepage": "https://github.com/riteshsangwan/serenity-controller-helper",
+  "homepage": "https://github.com/appirio-tech/lc1-node-controller-helper",
   "keywords": [
     "serenity"
   ],
@@ -19,9 +19,10 @@
     "grunt-env": "^0.4.1",
     "load-grunt-tasks": "^0.4.0",
     "lodash": "^2.4.1",
-    "serenity-route-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-route-helper.git",
-    "serenity-param-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-param-helper.git",
-    "serenity-partial-response-helper": "git+ssh://git@gitlab.com:spanhawk/serenity-partial-response-helper.git"
+    "serenity-route-helper": "^1.0.0",
+    "serenity-param-helper": "^1.0.0",
+    "serenity-partial-response-helper": "^1.0.0",
+    "common-errors": "^0.4.18"
   },
   "devDependencies": {
   },
