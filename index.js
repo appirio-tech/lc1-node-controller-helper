@@ -276,7 +276,7 @@ function getEntity(model, referenceModels, options, req, res, next) {
       }
       _findEntityByFilter(model, filters, req, callback);
     }
-  ], function (err, entity) {
+  ], function (err, filters, entity) {
     if (err) {
       return next(err);  // go to error handler
     } else {
