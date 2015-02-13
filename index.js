@@ -159,7 +159,7 @@ function _buildReferenceFilter(referenceModels, req, callback) {
         // verify an element exists in the reference model
         refModel.find(refFilters).success(function (refEntity) {
           if(!refEntity) {
-            cb(new errors.ValidationError('Cannot find the ' + refModel.name + ' with id '+ idParamValue));
+            cb(new errors.NotFoundError('Cannot find the ' + refModel.name + ' with id '+ idParamValue));
           } else {
             // add the id of reference element to filters
             filters.where[idParam] = refEntity.id;
@@ -268,6 +268,7 @@ function getEntity(model, referenceModels, options, req, res, next) {
       _buildReferenceFilter(referenceModels, req, callback);
     },
     function(filters, callback) {
+      console.log("getEntity", filters);
       // use entity filter IDs if configured
       if (options.entityFilterIDs) {
         filters.where = _.omit(filters.where, function(value, key) {
@@ -285,6 +286,7 @@ function getEntity(model, referenceModels, options, req, res, next) {
         status: 200,
         content: entity
       };
+      console.log("partialResponseHelper.reduceFieldsAndExpandObject");
       partialResponseHelper.reduceFieldsAndExpandObject(model, req, next);
     }
   });
@@ -490,7 +492,6 @@ ControllerHelper.prototype.findEntities = function(model, filters, req, funcCall
     funcCallback(req.error);
   });
 };
-
 /**
  * Build controller for model with the given options.
  * @param  {Model}    model               Sequelize Model
