@@ -473,6 +473,24 @@ function ControllerHelper(config) {
   partialResponseHelper = new responseHelper(datasource);
 }
 
+
+/**
+ * This function retrieves all entities in the model by filters.
+ * @param model the entity model
+ * @param filters the filters to search
+ * @param req the request
+ * @param funcCallback the callback to return the result
+ */
+ControllerHelper.prototype.findEntities = function(model, filters, req, funcCallback) {
+  model.findAndCountAll(filters).success(function(result) {
+    funcCallback(null, result.count, result.rows);
+  })
+  .error(function(err) {
+    routeHelper.addError(req, err);
+    funcCallback(req.error);
+  });
+};
+
 /**
  * Build controller for model with the given options.
  * @param  {Model}    model               Sequelize Model
