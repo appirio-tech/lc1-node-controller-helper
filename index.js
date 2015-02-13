@@ -492,6 +492,9 @@ ControllerHelper.prototype.findEntities = function(model, filters, req, funcCall
     funcCallback(req.error);
   });
 };
+
+ControllerHelper.prototype.getEntity = getEntity;
+
 /**
  * Build controller for model with the given options.
  * @param  {Model}    model               Sequelize Model
