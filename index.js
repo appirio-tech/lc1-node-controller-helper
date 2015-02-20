@@ -159,7 +159,7 @@ function _buildReferenceFilter(referenceModels, req, callback) {
         // verify an element exists in the reference model
         refModel.find(refFilters).success(function (refEntity) {
           if(!refEntity) {
-            cb(new errors.ValidationError('Cannot find the ' + refModel.name + ' with id '+ idParamValue));
+            cb(new errors.NotFoundError('Cannot find the ' + refModel.name + ' with id '+ idParamValue));
           } else {
             // add the id of reference element to filters
             filters.where[idParam] = refEntity.id;
@@ -472,6 +472,26 @@ function ControllerHelper(config) {
   var datasource = new serenityDatasource(config);
   partialResponseHelper = new responseHelper(datasource);
 }
+
+
+/**
+ * This function retrieves all entities in the model by filters.
+ * @param model the entity model
+ * @param filters the filters to search
+ * @param req the request
+ * @param funcCallback the callback to return the result
+ */
+ControllerHelper.prototype.findEntities = function(model, filters, req, funcCallback) {
+  model.findAndCountAll(filters).success(function(result) {
+    funcCallback(null, result.count, result.rows);
+  })
+  .error(function(err) {
+    routeHelper.addError(req, err);
+    funcCallback(req.error);
+  });
+};
+
+ControllerHelper.prototype.getEntity = getEntity;
 
 /**
  * Build controller for model with the given options.
