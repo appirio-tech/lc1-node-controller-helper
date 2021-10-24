@@ -22,7 +22,7 @@
     "serenity-route-helper": "^1.0.0",
     "serenity-param-helper": "^1.0.0",
     "serenity-partial-response-helper": "^1.0.0",
-    "common-errors": "^0.4.18"
+    "common-errors": "^0.5.7"
   },
   "devDependencies": {},
   "engines": {
